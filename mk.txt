@@ -1,0 +1,4 @@
+# mật khẩu admin
+admin_password = "admin123"
+# mật khẩu user
+user_password = "user123"
