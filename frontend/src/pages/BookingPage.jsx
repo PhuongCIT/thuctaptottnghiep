@@ -272,11 +272,23 @@ const BookingPage = () => {
             </div>
           </div>
           <div className="md:col-span-2 p-4 bg-blue-50 rounded-xl mt-4">
-            <p className="text-blue-700 font-bold">
+            <div className="flex flex-wrap gap-2 mb-4">
+              {selectedServices.map((service) => (
+                <div
+                  key={service._id}
+                  className="flex items-center bg-blue-100 rounded-full px-4 py-2 text-sm  font-medium transition-all hover:bg-blue-200"
+                >
+                  <span>{service.name}</span>
+                </div>
+              ))}
+            </div>
+            <p className="">
               Tổng cộng:{" "}
-              {formatPrice(
-                selectedServices.reduce((sum, s) => sum + s.price, 0)
-              )}{" "}
+              <span className="font-bold text-red-500">
+                {formatPrice(
+                  selectedServices.reduce((sum, s) => sum + s.price, 0)
+                )}
+              </span>{" "}
               VNĐ{" "}
             </p>
             <p>

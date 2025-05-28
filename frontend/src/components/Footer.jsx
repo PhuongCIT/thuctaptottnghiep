@@ -2,7 +2,7 @@ import React from "react";
 import { FaFacebook, FaInstagramSquare } from "react-icons/fa";
 const Footer = () => {
   return (
-    <div className="bg-gray-100 py-10 px-4 sm:px-10">
+    <div className="bg-gray-100 py-10 px-4 sm:px-10 mt-10">
       <div className="flex flex-col sm:grid grid-cols-[3fr_1fr_1fr] gap-14 my-10 mt-4 text-sm">
         {/* ----------Phần bên trái---------- */}
         <div className="">

@@ -1,7 +1,9 @@
 import { createContext, useEffect, useState } from "react";
-import { reviews } from "../assets/data/db";
+// import { reviews } from "../assets/data/db";
 import userApi from "../services/userService";
 import serviceApi from "../services/serviceService";
+import reviewApi from "../services/reviewService";
+import shiftApi from "../services/shiftService";
 
 export const AppContext = createContext(null);
 
@@ -9,12 +11,16 @@ export const AppContextProvider = (props) => {
   const [loadingStaffs, setLoadingStaff] = useState(false);
   const [errorStaffs, setErrorStaff] = useState(null);
   const [staffs, setStaffs] = useState([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [errorReviews, setErrorReviews] = useState(null);
+  const [reviews, setReviews] = useState([]);
   const [loadingCustomers, setLoadingCustomers] = useState(false);
   const [errorCustomers, setErrorCustomers] = useState(null);
   const [customers, setCustomers] = useState([]);
   const [services, setServices] = useState([]);
   const [errorService, setErrorService] = useState(null);
   const [loadingService, setLoadingService] = useState(false);
+  const [shifts, setShifts] = useState([]);
 
   const getAllServices = async () => {
     try {
@@ -87,12 +93,40 @@ export const AppContextProvider = (props) => {
       setLoadingCustomers(false);
     }
   };
+  //get review
+  const getReviews = async () => {
+    try {
+      setLoadingReviews(true);
+      setErrorReviews(null);
+      // Gọi API
+      const response = await reviewApi.getReviews();
+      const data = response.data.data.reviews;
+      // console.log("Data Review :", data);
+      if (data && Array.isArray(data)) {
+        setReviews(data);
+      } else {
+        setReviews([]);
+      }
+    } catch (error) {
+      console.error("Error loading services:", error);
+      setErrorReviews("Không thể tải dữ liệu");
+    } finally {
+      setLoadingReviews(false);
+    }
+  };
+  const getAllShifts = async () => {
+    const response = await shiftApi.getAll();
+    // console.log("Shift Data ", response.data);
+    setShifts(response.data);
+  };
 
   useEffect(() => {
     getAllServices();
+    getReviews();
+    getAllShifts();
+    getAllCustomers();
     if (staffs.length === 0 && !loadingStaffs) {
       getAllStaffs();
-      getAllCustomers();
     }
   }, []);
   const value = {
@@ -102,6 +136,9 @@ export const AppContextProvider = (props) => {
     setErrorStaff,
     getAllStaffs,
     reviews,
+    getReviews,
+    loadingReviews,
+    errorReviews,
 
     services,
     errorService,
@@ -114,6 +151,8 @@ export const AppContextProvider = (props) => {
     customers,
     loadingCustomers,
     errorCustomers,
+    shifts,
+    getAllShifts,
   };
 
   return (

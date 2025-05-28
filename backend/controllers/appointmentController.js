@@ -109,7 +109,7 @@ export const createAppointment = async (req, res) => {
 
       const workShift = await WorkShift.findOne({
         staffId,
-        isActive: true,
+        status: "approved",
       });
 
       if (!workShift) {
@@ -287,6 +287,23 @@ export const confirmAppointment = async (req, res) => {
   });
 };
 
+//completed
+export const completedAppointment = async (req, res) => {
+  const appointment = await Appointment.findById(req.params.id);
+  if (!appointment) {
+    return res.status(404).json({
+      success: false,
+      message: "Appointment not found",
+    });
+  }
+  appointment.status = "completed";
+  await appointment.save();
+  res.status(200).json({
+    success: true,
+    data: { appointment },
+  });
+};
+
 // Cập nhật appointment
 export const updateAppointment = async (req, res) => {
   // Chỉ cho phép cập nhật một số trường nhất định
@@ -337,14 +354,14 @@ export const cancelAppointment = async (req, res) => {
   }
 
   // Chỉ customer tạo lịch hoặc admin mới được hủy
-  if (
-    req.user.role === "customer" &&
-    appointment.customerId.toString() !== req.user.id
-  ) {
-    return res
-      .status(403)
-      .json({ success: false, message: "Bạn không có quyền hủy lịch này" });
-  }
+  // if (
+  //   req.user.role === "customer" &&
+  //   appointment.customerId.toString() !== req.user.id
+  // ) {
+  //   return res
+  //     .status(403)
+  //     .json({ success: false, message: "Bạn không có quyền hủy lịch này" });
+  // }
 
   // Chỉ hủy được lịch ở trạng thái pending hoặc confirmed
   if (!["pending", "confirmed"].includes(appointment.status)) {
@@ -361,13 +378,4 @@ export const cancelAppointment = async (req, res) => {
     message: "Lịch hẹn đã bị hủy",
     data: { appointment },
   });
-};
-
-export default {
-  createAppointment,
-  getAppointments,
-  getAllAppointments,
-  getAppointment,
-  updateAppointment,
-  cancelAppointment,
 };

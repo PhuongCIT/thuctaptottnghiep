@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import appointmentApi from "../services/appointmentsService";
+import workShiftApi from "../services/workShiftService";
 
 const AuthContext = createContext();
 
@@ -12,6 +13,7 @@ export function AuthProvider({ children }) {
   // const  [loading, setLoading] = useState(true);
   // const [error, setError] = useState(null);
   const [appointments, setAppointments] = useState([]);
+  const [workShifts, setWorkShift] = useState([]);
 
   const baseURL = "http://localhost:8080/api";
 
@@ -71,7 +73,7 @@ export function AuthProvider({ children }) {
   const getAllAppointments = async () => {
     try {
       const res = await axios.get(`${baseURL}/appointments`);
-      // console.log("getAllAppointments", res.data.data.appointments);
+      console.log("getAllAppointments", res.data.data.appointments);
       if (res.data.success) {
         setAppointments(res.data.data.appointments.reverse());
       }
@@ -88,11 +90,44 @@ export function AuthProvider({ children }) {
       toast.error(data.message);
     }
   };
+  const completeAppointment = async (id) => {
+    const { data } = await appointmentApi.completed(id);
+    if (data.success) {
+      toast.success(data.message);
+      getAllAppointments();
+    } else {
+      toast.error(data.message);
+    }
+  };
+  const cancelAppointment = async (id) => {
+    const { data } = await appointmentApi.canceled(id);
+    if (data.success) {
+      toast.success(data.message);
+      getAllAppointments();
+    } else {
+      toast.error(data.message);
+    }
+  };
+
+  // get all workShift
+  const getAllWorkShift = async () => {
+    try {
+      const res = await workShiftApi.getAll();
+      const data = res.data;
+      // console.log("resData workShift ", data);
+      if (data.success) {
+        setWorkShift(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching work shift:", error);
+    }
+  };
 
   useEffect(() => {
     if (token) {
       loadUserProfileData();
       getAllAppointments();
+      getAllWorkShift();
     } else {
       setUser(false);
     }
@@ -111,6 +146,10 @@ export function AuthProvider({ children }) {
         baseURL,
         loadUserProfileData,
         confirmAppointment,
+        completeAppointment,
+        cancelAppointment,
+        getAllWorkShift,
+        workShifts,
       }}
     >
       {children}

@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import cattoc from "../assets/images/cattoc.jpg";
 
 const CardService = ({ item, index }) => {
   const navigate = useNavigate();
@@ -11,7 +10,7 @@ const CardService = ({ item, index }) => {
   return (
     <div
       key={index}
-      className="border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-300"
+      className="border border-blue-200 rounded-xl overflow-hidden  hover:translate-y-[-10px] transition-all duration-300"
     >
       <img
         src={item.image}
@@ -33,7 +32,7 @@ const CardService = ({ item, index }) => {
           onClick={() => {
             navigate("/booking");
           }}
-          className="text-amber-700 my-2 font-bold text-lg bg-amber-300 py-2 px-4 rounded-2xl hover:bg-amber-200"
+          className="text-white my-2  text-lg bg-blue-500 py-2 px-4 rounded-2xl hover:bg-blue-400 cursor-pointer"
         >
           Đặt lịch ngay
         </button>

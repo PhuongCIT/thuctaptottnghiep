@@ -18,14 +18,18 @@ import {
 } from "../controllers/userController.js";
 import {
   createAppointment,
-  getAppointment,
   getAllAppointments,
   updateAppointment,
   confirmAppointment,
+  completedAppointment,
+  cancelAppointment,
 } from "../controllers/appointmentController.js";
 import { authenticate } from "../middleware/auth.js";
-import { createWorkShift } from "../controllers/workShiftController.js";
-import { createShift } from "../controllers/shiftController.js";
+import {
+  createShift,
+  deleteShift,
+  getAllShifts,
+} from "../controllers/shiftController.js";
 import {
   createContact,
   getContacts,
@@ -35,6 +39,11 @@ import {
   createReview,
   getAllReviews,
 } from "../controllers/reviewController.js";
+import {
+  approveWorkShift,
+  getWorkShifts,
+  registerWorkShift,
+} from "../controllers/workShiftController.js";
 const router = express.Router();
 //auth
 router.post("/auth/login", login);
@@ -78,18 +87,22 @@ router.post("/appointments", createAppointment);
 router.get("/appointments", authenticate, getAllAppointments);
 router.put("/appointments/:id", authenticate, updateAppointment);
 router.put("/appointments/confirm/:id", confirmAppointment);
+router.put("/appointments/cancel/:id", cancelAppointment);
+router.put("/appointments/complete/:id", completedAppointment);
 
 //review
 router.post("/reviews", createReview);
 router.get("/reviews", getAllReviews);
 
 //WorkShift
-// router.get("/workshifts", getAllWorkShifts);
-router.post("/workshifts/create", createWorkShift);
+router.get("/workshifts", authenticate, getWorkShifts);
+router.post("/workshifts/register", registerWorkShift);
+router.put("/workshifts/:id", approveWorkShift);
 
 //Shift
-// router.get("/shifts", getAllShifts);
+router.get("/shifts", getAllShifts);
 router.post("/shifts/create", createShift);
+router.delete("/shifts/delete/:id", deleteShift);
 
 //contact
 

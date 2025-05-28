@@ -6,8 +6,8 @@ import reviewApi from "../services/reviewService";
 import { toast } from "react-toastify";
 
 const MyAppointments = () => {
-  const { appointments } = useAuth();
-  const { formatPrice } = useContext(AppContext);
+  const { appointments, cancelAppointment, getAllAppointments } = useAuth();
+  const { formatPrice, getReviews } = useContext(AppContext);
   const { user } = useAuth();
   const [rating, setRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,6 +19,8 @@ const MyAppointments = () => {
       console.log("Review created:", res);
       // Có thể thêm toast notification ở đây
       toast.success("Đánh giá thành công!");
+      getAllAppointments();
+      getReviews();
       setRating(0);
     } catch (error) {
       console.error("Lỗi khi tạo review:", error);
@@ -50,7 +52,7 @@ const MyAppointments = () => {
             </div>
 
             <p className="text-zinc-700 font-medium mt-1">
-              Nhân viên: {item.staff?.name || "Chưa xác định"}
+              Nhân viên: {item.staffId?.name || "Chưa xác định"}
             </p>
 
             <p className="text-xs mt-1">
@@ -94,6 +96,9 @@ const MyAppointments = () => {
               <div className="flex flex-col gap-2 justify-end">
                 {item.status === "completed" ? (
                   <div className="space-y-4">
+                    <div className="">
+                      <p>Đã thanh toán</p>
+                    </div>
                     <form
                       onSubmit={async (e) => {
                         e.preventDefault();
@@ -145,12 +150,19 @@ const MyAppointments = () => {
                       </div>
                     </form>
                   </div>
+                ) : item.status === "cancelled" ? (
+                  <div className="text-red-500">
+                    <p>Đã hủy</p>
+                  </div>
                 ) : (
                   <div className="flex space-x-3">
                     <button className="text-sm text-center sm:min-w-36 py-2 border rounded-xl bg-gray-500 text-white transition-all duration-300 cursor-no-drop">
                       Thanh toán online
                     </button>
-                    <button className="text-sm text-stone-500 text-center sm:min-w-36 py-2 border rounded-xl hover:bg-red-500 hover:text-white transition-all duration-300 cursor-pointer">
+                    <button
+                      onClick={() => cancelAppointment(item._id)}
+                      className="text-sm text-stone-500 text-center sm:min-w-36 py-2 border rounded-xl hover:bg-red-500 hover:text-white transition-all duration-300 cursor-pointer"
+                    >
                       Hủy
                     </button>
                   </div>

@@ -1,4 +1,5 @@
 import React from "react";
+import StarRating from "./StarRating";
 
 const TopReviews = ({ reviews }) => {
   return (
@@ -12,14 +13,20 @@ const TopReviews = ({ reviews }) => {
             className="border border-blue-200 rounded-xl overflow-hidden  hover:translate-y-[-10px] transition-all duration-300"
           >
             <div className="p-4">
-              <p className="text-gray-900 text-lg font-medium h-20">
+              <div className="text-gray-600 text-sm flex justify-center items-center">
+                <img
+                  src={item.customerId.image}
+                  alt=""
+                  className="w-10 h-10 rounded-full"
+                />
+                <h1 className="">{item.customerId.name}</h1>
+              </div>
+              <h1 className="">{item.serviceId.name}</h1>
+
+              <p className="text-gray-900 text-lg  h-20 font-light">
                 {item.comment}
               </p>
-              <div className="text-gray-600 text-sm  ">
-                <h1 className="bg-gray-700 text-white py-2 rounded-2xl text-center">
-                  {item.user_name}
-                </h1>
-              </div>
+              <StarRating rating={item.rating} />
             </div>
           </div>
         ))}

@@ -1,12 +1,11 @@
-import { FiTrash2, FiEdit } from "react-icons/fi";
+import { FiTrash2, FiEdit, FiCheck } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useEffect, useState } from "react";
 import { AppContext } from "../../context/AppContext";
 
 const AppointmentManagement = () => {
-  const { appointments } = useAuth();
+  const { appointments, completeAppointment, confirmAppointment } = useAuth();
   // const { formatPrice } = useContext(AppContext);
-  const { confirmAppointment } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [statusFilter, setStatusFilter] = useState("all");
@@ -32,6 +31,10 @@ const AppointmentManagement = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN").format(price);
+  };
+
   // Reset về trang 1 khi filter thay đổi
   useEffect(() => {
     setCurrentPage(1);
@@ -47,9 +50,11 @@ const AppointmentManagement = () => {
               <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
                 Customer & Phone
               </th>
-
               <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
                 Services
+              </th>
+              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
+                Tổng giá
               </th>
               <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
                 Staff name
@@ -57,7 +62,6 @@ const AppointmentManagement = () => {
               <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
                 Date & Time
               </th>
-
               <th className="px-6 py-3 text-left text-sm font-medium text-gray-600 flex items-center">
                 Status
                 <select
@@ -81,7 +85,7 @@ const AppointmentManagement = () => {
             {currentAppoitments.length > 0 ? (
               currentAppoitments?.map((appointment) => (
                 <tr
-                  key={appointment.id}
+                  key={appointment._id}
                   className="border-b hover:bg-gray-50 transition"
                 >
                   <td className="px-3 py-2  ">
@@ -101,7 +105,9 @@ const AppointmentManagement = () => {
                       </span>
                     ))}
                   </td>
-
+                  <td className="px-6 py-4 text-sm text-gray-800">
+                    {formatPrice(appointment.totalPrice)} VNĐ
+                  </td>
                   <td className="px-6 py-4 text-sm text-gray-800">
                     {appointment.staffId?.name || "Null"}
                   </td>
@@ -140,14 +146,23 @@ const AppointmentManagement = () => {
                       {appointment.status}
                     </td>
                   )}
-                  <td className="px-6 py-4 text-center">
+                  <td className="px-6 py-4 text-center flex gap-2">
+                    {appointment.status === "completed" ||
+                      (appointment.status !== "cancelled" && (
+                        <button
+                          onClick={() => completeAppointment(appointment._id)}
+                          className="ml-4 w-7 h-7 text-green-500 hover:text-green-700 transition border rounded-full cursor-pointer"
+                        >
+                          <FiCheck className="inline w-5 h-5" />
+                        </button>
+                      ))}
                     <button
                       // onClick={() => handleDelete(appointment.id)}
-                      className="text-red-500 hover:text-red-700 transition"
+                      className="text-red-500 hover:text-red-700 transition cursor-pointer"
                     >
                       <FiTrash2 className="inline w-5 h-5" />
                     </button>
-                    <button className="ml-4 text-yellow-500 hover:text-yellow-700 transition">
+                    <button className="ml-4 text-yellow-500 hover:text-yellow-700 transition cursor-pointer">
                       <FiEdit className="inline w-5 h-5" />
                     </button>
                   </td>

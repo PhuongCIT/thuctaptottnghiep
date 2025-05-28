@@ -1,13 +1,34 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Modal from "../../../lib/modal";
+import shiftApi from "../../../services/shiftService";
+import { AppContext } from "../../../context/AppContext";
+import { toast } from "react-toastify";
 
-const CreateShiftModal = ({ isOpen, onClose, onCreate }) => {
+const CreateShiftModal = ({ isOpen, onClose }) => {
+  const { getAllShifts } = useContext(AppContext);
   const [shift, setShift] = useState({
-    name: "morning",
-    startTime: "08:00",
-    endTime: "12:00",
-    maxEmployees: 5,
+    shiftType: "",
+    date: "",
+    max: 0,
   });
+
+  //gọi api tạo ca làm
+  const handleCreateShift = async () => {
+    try {
+      console.log("shift", shift);
+      const response = await shiftApi.create(shift);
+      console.log("resData ", response);
+      const data = response.data;
+      if (data.success) {
+        toast.success(data.message);
+        //tạo ca làm thành công
+        getAllShifts();
+        onClose();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -16,45 +37,35 @@ const CreateShiftModal = ({ isOpen, onClose, onCreate }) => {
         <div>
           <label className="block text-sm font-medium mb-1">Loại ca</label>
           <select
-            value={shift.name}
-            onChange={(e) => setShift({ ...shift, name: e.target.value })}
+            value={shift.shiftType}
+            onChange={(e) => setShift({ ...shift, shiftType: e.target.value })}
             className="w-full p-2 border rounded"
           >
-            <option value="morning">Ca sáng</option>
-            <option value="afternoon">Ca chiều</option>
-            <option value="evening">Ca tối</option>
+            <option value="">Chọn ca</option>
+            <option value="Ca1">Ca 1</option>
+            <option value="Ca2">Ca 2</option>
           </select>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Giờ bắt đầu
-            </label>
-            <input
-              type="time"
-              value={shift.startTime}
-              onChange={(e) =>
-                setShift({ ...shift, startTime: e.target.value })
-              }
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Giờ kết thúc
-            </label>
-            <input
-              type="time"
-              value={shift.endTime}
-              onChange={(e) => setShift({ ...shift, endTime: e.target.value })}
-              className="w-full p-2 border rounded"
-            />
-          </div>
+          <label className="block text-sm font-medium mb-1">Ngày</label>
+          <input
+            type="date"
+            value={shift.date}
+            onChange={(e) => setShift({ ...shift, date: e.target.value })}
+            className="w-full p-2 border rounded"
+          />
+          <label className="block text-sm font-medium mb-1">Số lượng</label>
+          <input
+            type="number"
+            value={shift.max}
+            onChange={(e) => setShift({ ...shift, max: e.target.value })}
+            className="w-full p-2 border rounded"
+          />
         </div>
 
         <button
-          onClick={() => onCreate(shift)}
+          onClick={handleCreateShift}
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
         >
           Tạo ca làm

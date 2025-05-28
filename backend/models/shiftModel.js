@@ -4,7 +4,7 @@ const shiftSchema = new mongoose.Schema(
   {
     shiftType: {
       type: String,
-      enum: ["Morning", "Afternoon", "Night"],
+      enum: ["Ca1", "Ca2"],
       required: true,
     },
     date: {
@@ -15,43 +15,16 @@ const shiftSchema = new mongoose.Schema(
       type: String,
       default: function () {
         // Tự động tính giờ theo ca
-        return this.shiftType === "Morning"
-          ? "08:00"
-          : this.shiftType === "Afternoon"
-          ? "13:00"
-          : "18:00";
+        return this.shiftType === "Ca1" ? "07:00" : "15:00";
       },
     },
     endTime: {
       type: String,
       default: function () {
-        return this.shiftType === "Morning"
-          ? "12:00"
-          : this.shiftType === "Afternoon"
-          ? "17:00"
-          : "22:00";
+        return this.shiftType === "Ca1" ? "15:00" : "23:00";
       },
     },
-    staffId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-    requestedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    status: {
-      type: String,
-      enum: ["Pending", "Approved", "Rejected", "Completed"],
-      default: "Pending",
-    },
-    adminNote: {
-      type: String,
-    },
-    staffNote: {
-      type: String,
-    },
+    max: { type: Number },
   },
   { timestamps: true }
 );

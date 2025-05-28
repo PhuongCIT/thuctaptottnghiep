@@ -16,6 +16,8 @@ const appointmentApi = {
       },
     }),
   confirmed: (id) => api.put(`/appointments/confirm/${id}`),
+  completed: (id) => api.put(`/appointments/complete/${id}`),
+  canceled: (id) => api.put(`/appointments/cancel/${id}`),
 };
 
 export default appointmentApi;

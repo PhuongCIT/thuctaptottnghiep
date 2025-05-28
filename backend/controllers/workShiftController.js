@@ -1,143 +1,173 @@
-// controllers/workShiftController.js
-// const WorkShift = require("../models/workShiftModel");
-// const User = require("../models/userModel");
-
-import User from "../models/userModel.js";
 import WorkShift from "../models/workShiftModel.js";
+import Shift from "../models/shiftModel.js";
 
-// [POST] /api/v1/work-shifts - Tạo ca làm việc mới (Admin)
-export const createWorkShift = async (req, res) => {
-  // Kiểm tra staff tồn tại và là nhân viên
-
+// Nhân viên đăng ký ca
+export const registerWorkShift = async (req, res) => {
   try {
-    const { staffId, date, dayOfWeek, startTime, endTime } = req.body;
+    const { staffId, shiftId } = req.body;
 
-    const isStaff = await User.findById(req.body.staff);
-    if (!isStaff || isStaff.role !== "staff") {
+    // Kiểm tra ca có tồn tại không
+    const shift = await Shift.findById(shiftId);
+    if (!shift) {
+      return res.status(404).json({
+        success: false,
+        message: "Ca làm việc không tồn tại",
+      });
+    }
+
+    // Kiểm tra nhân viên đã đăng ký ca này chưa
+    const existingRegistration = await WorkShift.findOne({ staffId, shiftId });
+    if (existingRegistration) {
       return res.status(400).json({
         success: false,
-        message: "Nhân viên không hợp lệ hoặc không phải là nhân viên",
-      });
-    }
-    // Xử lý date/dayOfWeek
-    let resolvedDayOfWeek;
-    if (date) {
-      const parsedDate = new Date(date);
-      if (isNaN(parsedDate.getTime())) {
-        return res
-          .status(400)
-          .json({ error: "Ngày không hợp lệ (YYYY-MM-DD)" });
-      }
-      resolvedDayOfWeek = parsedDate.getDay(); // 0-6
-    } else if (dayOfWeek !== undefined) {
-      if (dayOfWeek < 0 || dayOfWeek > 6) {
-        return res.status(400).json({ error: "dayOfWeek phải từ 0-6" });
-      }
-      resolvedDayOfWeek = dayOfWeek;
-    } else {
-      return res.status(400).json({ error: "Thiếu dayOfWeek hoặc date" });
-    }
-
-    // Validate time format
-    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
-    if (!timeRegex.test(startTime) || !timeRegex.test(endTime)) {
-      return res.status(400).json({ error: "Thời gian phải là HH:MM (24h)" });
-    }
-
-    // Kiểm tra xung đột ca làm
-    const conflictingShift = await WorkShift.findOne({
-      staffId,
-      dayOfWeek: resolvedDayOfWeek,
-      $or: [{ startTime: { $lt: endTime }, endTime: { $gt: startTime } }],
-    });
-
-    if (conflictingShift) {
-      return res.status(409).json({
-        error: "Xung đột ca làm việc",
-        existingShift: conflictingShift,
+        message: "Bạn đã đăng ký ca này rồi",
       });
     }
 
-    // Tạo ca làm
-    const newShift = await WorkShift.create({
-      date,
-      staffId,
-      dayOfWeek: resolvedDayOfWeek,
-      startTime,
-      endTime,
+    // Kiểm tra số lượng đăng ký có vượt quá giới hạn không
+    const currentRegistrations = await WorkShift.countDocuments({ shiftId });
+    if (currentRegistrations >= shift.max) {
+      return res.status(400).json({ message: "Ca làm việc đã đủ số lượng" });
+    }
 
-      ...(date && { dateReference: new Date(date) }), // Lưu thêm ngày tham chiếu nếu có
-    });
-
-    res.status(201).json({
+    const newWorkShift = await WorkShift.create({ staffId, shiftId });
+    res.status(200).json({
       success: true,
-      data: newShift,
+      message: "Đăng ký ca làm việc thành công",
+      data: newWorkShift,
     });
   } catch (error) {
-    console.error("Lỗi tạo ca làm:", error);
     res.status(500).json({
-      error: "Lỗi server",
-      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
-    });
-  }
-};
-
-// [GET] /api/v1/work-shifts - Lấy tất cả ca làm việc
-export const getAllWorkShifts = async (req, res) => {
-  const filter = { isActive: true };
-
-  if (req.query.staff) filter.staff = req.query.staff;
-  if (req.query.dayOfWeek) filter.dayOfWeek = req.query.dayOfWeek;
-
-  const workShifts = await WorkShift.find(filter).populate("staff", "name");
-
-  res.status(200).json({
-    success: true,
-    message: "Lấy danh sách ca làm việc thành công",
-    results: workShifts.length,
-    data: { workShifts },
-  });
-};
-
-// [PATCH] /api/v1/work-shifts/:id - Cập nhật ca làm việc
-export const updateWorkShift = async (req, res) => {
-  const workShift = await WorkShift.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  }).populate("staff", "name");
-
-  if (!workShift) {
-    return res.status(404).json({
       success: false,
-      message: "Không tìm thấy ca làm việc với ID này",
+      message: error.message,
     });
   }
-
-  res.status(200).json({
-    success: true,
-    message: "Cập nhật ca làm việc thành công",
-    data: { workShift },
-  });
 };
 
-// [DELETE] /api/v1/work-shifts/:id - Vô hiệu hóa ca làm việc (soft delete)
-export const deleteWorkShift = async (req, res) => {
-  const workShift = await WorkShift.findByIdAndUpdate(
-    req.params.id,
-    { isActive: false },
-    { new: true }
-  );
+// Admin duyệt/từ chối đăng ký ca
+export const approveWorkShift = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-  if (!workShift) {
-    return res.status(404).json({
-      success: false,
-      message: "Không tìm thấy ca làm việc với ID này",
+    const updatedWorkShift = await WorkShift.findByIdAndUpdate(
+      id,
+      {
+        status: "approved",
+      },
+      { new: true }
+    ).populate("staffId shiftId");
+
+    res.status(200).json({
+      success: true,
+      message: "Đã cập nhật trạng thái đăng ký ca làm việc",
+      data: updatedWorkShift,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Lấy danh sách đăng ký theo ca hoặc trạng thái
+// export const getWorkShifts = async (req, res) => {
+//   try {
+//     const { shiftId, status } = req.query; // status: 'pending', 'approved', 'rejected'
+//     const query = {};
+
+//     if (shiftId) query.shiftId = shiftId;
+//     if (status === "pending") {
+//       query.isActive = false;
+//       query.isRejected = false;
+//     } else if (status === "approved") {
+//       query.isActive = true;
+//     } else if (status === "rejected") {
+//       query.isRejected = true;
+//     }
+//     // Staff chỉ xem được lịch của mình
+//     if (req.user.role === "staff") {
+//       filter.staffId = req.user._id;
+//     }
+
+//     const workShifts = await WorkShift.find(query)
+//       .populate("staffId", "name email")
+//       .populate("shiftId", "shiftType date startTime endTime");
+
+//     res.status(200).json(workShifts);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+// Lấy danh sách đăng ký ca làm việc theo bộ lọc
+export const getWorkShifts = async (req, res) => {
+  try {
+    const { shiftId, status } = req.query;
+    const query = {};
+    const filter = {}; // Tách biệt query và filter để rõ ràng
+
+    // Xử lý bộ lọc trạng thái
+    if (status) {
+      switch (
+        status.toLowerCase() // Chuẩn hóa đầu vào
+      ) {
+        case "pending":
+          query.isActive = false;
+          query.isRejected = false;
+          break;
+        case "approved":
+          query.isActive = true;
+          query.isRejected = false; // Thêm điều kiện phụ
+          break;
+        case "rejected":
+          query.isRejected = true;
+          break;
+        default:
+          return res.status(400).json({ message: "Trạng thái không hợp lệ" });
+      }
+    }
+
+    // Lọc theo shiftId nếu có
+    if (shiftId) {
+      if (!mongoose.Types.ObjectId.isValid(shiftId)) {
+        return res.status(400).json({ message: "ID ca làm việc không hợp lệ" });
+      }
+      query.shiftId = shiftId;
+    }
+
+    // Phân quyền: Staff chỉ xem được lịch của mình
+    if (req.user.role === "staff") {
+      query.staffId = req.user._id; // Sửa từ 'filter' sang 'query'
+    } else if (req.user.role === "manager") {
+      // Manager có thể thêm bộ lọc khác nếu cần
+    }
+
+    // Truy vấn với populate và sắp xếp
+    const workShifts = await WorkShift.find(query)
+      .populate("staffId", "name email avatar") // Thêm trường avatar
+      .populate({
+        path: "shiftId",
+        select: "shiftType date startTime endTime",
+        options: { sort: { date: 1 } }, // Sắp xếp theo ngày tăng dần
+      })
+      .lean(); // Chuyển sang plain object để tối ưu hiệu năng
+
+    // Format lại ngày tháng theo múi giờ VN (nếu cần)
+    const formattedShifts = workShifts.map((shift) => ({
+      ...shift,
+      shiftId: {
+        ...shift.shiftId,
+        date: shift.shiftId?.date?.toLocaleDateString("vi-VN"), // Định dạng dd/mm/yyyy
+      },
+    }));
+
+    res.status(200).json({
+      data: formattedShifts,
+      message: "Lấy lịch ca làm việc thành công",
+      success: true,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách ca làm:", error);
+    res.status(500).json({
+      message: "Lỗi hệ thống",
+      details: process.env.NODE_ENV === "development" ? error.message : null,
     });
   }
-
-  res.status(200).json({
-    success: true,
-    message: "Vô hiệu hóa ca làm việc thành công",
-    data: { workShift },
-  });
 };

@@ -38,9 +38,7 @@ const ShiftRegistrationCard = ({ shift, date, onRegister, isRegistered }) => {
                 {s.startTime} - {s.endTime}
               </span>
             </div>
-            <div className="text-xs text-gray-500 mt-1">
-              {s.maxEmployees - s.currentRegistrations} chỗ trống
-            </div>
+            <div className="text-xs text-gray-500 mt-1">{s.max} chỗ trống</div>
           </div>
         ))}
       </div>

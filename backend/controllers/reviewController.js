@@ -65,9 +65,9 @@ export const getAllReviews = async (req, res) => {
   if (req.query.staffId) filter.staffId = req.query.staffId;
 
   const reviews = await Review.find(filter)
-    .populate("customer", "name image")
-    .populate("staff", "name")
-    .populate("service", "name");
+    .populate("customerId", "name image")
+    .populate("staffId", "name")
+    .populate("serviceId", "name");
 
   res.status(200).json({
     success: true,
