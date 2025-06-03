@@ -19,6 +19,7 @@ const ApprovalTable = ({ registrations }) => {
 
   // Hàm chuyển trang
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   const handleApprove = async (id) => {
     try {
       // API call to approve/reject
@@ -39,10 +40,8 @@ const ApprovalTable = ({ registrations }) => {
   };
   return (
     <div className="space-y-4">
-      {/* Bảng dữ liệu */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
-          {/* Phần header giữ nguyên như cũ */}
           <thead>
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
@@ -63,16 +62,13 @@ const ApprovalTable = ({ registrations }) => {
             </tr>
           </thead>
 
-          {/* Hiển thị dữ liệu đã phân trang */}
           <tbody className="divide-y divide-gray-200">
             {currentItems.map((reg) => (
               <tr key={reg._id}>
-                {/* Các cột dữ liệu giữ nguyên */}
                 <td className="px-4 py-3 whitespace-nowrap">
                   {reg.staffId.name}
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
-                  {/* {new Date(reg.shiftId.date).toLocaleDateString("vi-VN")} */}
                   {reg.shiftId.date}
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
@@ -108,9 +104,9 @@ const ApprovalTable = ({ registrations }) => {
       {/* Phần điều hướng phân trang */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-gray-500">
-          Hiển thị {indexOfFirstItem + 1}-
+          {indexOfFirstItem + 1}-
           {Math.min(indexOfLastItem, registrations.length)} trên{" "}
-          {registrations.length} kết quả
+          {registrations.length}
         </div>
 
         <div className="flex space-x-1">

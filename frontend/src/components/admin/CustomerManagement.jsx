@@ -24,10 +24,6 @@ const CustomerManagement = () => {
   const handleNext = () =>
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
 
-  // const handleEdit = (_id) => {
-  // setSelectedServiceId(id);
-  // setOpenEdit(true);
-  // };
   const handleDelete = async (_id) => {
     if (window.confirm("Bạn có chắc muốn Khách hàng này?")) {
       try {
@@ -45,12 +41,6 @@ const CustomerManagement = () => {
     <div className="bg-white shadow-md rounded-lg p-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Customers List</h2>
-        <button
-          onClick={() => setOpenAdd(true)}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
-        >
-          + Add Customer
-        </button>
       </div>
       <AddUser
         open={openAdd}
@@ -118,12 +108,6 @@ const CustomerManagement = () => {
                   {Customer?.dob || "Null"}
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
-                  <button
-                    className="bg-amber-200 cursor-pointer rounded px-1"
-                    // onClick={() => handleEdit(Customer._id)}
-                  >
-                    Sửa
-                  </button>
                   <button
                     className="bg-red-300 cursor-pointer ml-3 rounded px-1"
                     onClick={() => handleDelete(Customer._id)}

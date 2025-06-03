@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import router from "./routes/index.js"; // Lưu ý thêm /index.js nếu dùng folder routes
+import { setupAppointmentReminders } from "./controllers/notificationController.js";
 
 // Cấu hình biến môi trường
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(
   })
 );
 
+setupAppointmentReminders();
 // Router chính
 app.use("/api", router);
 

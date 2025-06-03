@@ -8,7 +8,6 @@ import About from "./pages/About";
 import MyProfile from "./pages/MyProfile";
 import MyAppointments from "./pages/MyAppointments";
 import NotFound from "./pages/NotFound";
-import Appointment from "./pages/Appointment";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import AdminPage from "./pages/AdminPage";
@@ -35,7 +34,6 @@ const App = () => {
         <Route path="/my-profile" element={<MyProfile />} />
         <Route path="/booking" element={<BookingPage />} />
         <Route path="/my-appointments" element={<MyAppointments />} />
-        <Route path="/appointment/:serId" element={<Appointment />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />

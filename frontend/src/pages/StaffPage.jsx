@@ -1,17 +1,10 @@
 import React, { useState } from "react";
-// import StaffManagement from "../components/admin/StaffManagement";
-// import ServiceManagement from "../components/admin/ServiceManagement";
-// import AppointmentManagement from "../components/admin/AppointmentManagement";
-// import Dasboard from "../components/admin/Dasboard";
-// import { AppContext } from "../context/AppContext";
 import { useAuth } from "../context/AuthContext";
-// import ShiftManagement from "../components/admin/ShiftManagement";
-// import ContactManaement from "../components/admin/ContactManagement";
-// import CustomerManagement from "../components/admin/CustomerManagement";
 import StaffShift from "../components/staff/StaffShift";
+import StaffAppointment from "../components/staff/StaffAppointment";
 
 const StaffPage = () => {
-  const [activeTab, setActiveTab] = useState("staffshift");
+  const [activeTab, setActiveTab] = useState("shift");
   const { user } = useAuth();
   return user?.role === "staff" ? (
     <div className="mt-10">
@@ -19,29 +12,7 @@ const StaffPage = () => {
         {/* Tabs */}
         <div className=" mx-auto px-6 py-4">
           <div className="flex space-x-4">
-            {/* <button
-              onClick={() => setActiveTab("dasboard")}
-              className={`px-4 py-2 rounded-lg font-bold cursor-pointer ${
-                activeTab === "dasboard"
-                  ? "bg-blue-400 hover:bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-blue-200"
-              }`}
-            >
-              Dasboard
-            </button> */}
-
-            {/* <button
-              onClick={() => setActiveTab("services")}
-              className={`px-4 py-2 rounded-lg font-bold cursor-pointer ${
-                activeTab === "services"
-                  ? "bg-blue-400 hover:bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-blue-200"
-              }`}
-            >
-              Services
-            </button> */}
-
-            {/* <button
+            <button
               onClick={() => setActiveTab("appointments")}
               className={`px-4 py-2 rounded-lg font-bold cursor-pointer ${
                 activeTab === "appointments"
@@ -50,10 +21,10 @@ const StaffPage = () => {
               }`}
             >
               Appointments
-            </button> */}
+            </button>
 
             <button
-              onClick={() => setActiveTab("staffshift")}
+              onClick={() => setActiveTab("shift")}
               className={`px-4 py-2 rounded-lg font-bold cursor-pointer ${
                 activeTab === "shift"
                   ? "bg-blue-400 hover:bg-blue-500 text-white"
@@ -62,27 +33,14 @@ const StaffPage = () => {
             >
               Shift
             </button>
-
-            {/* <button
-              onClick={() => setActiveTab("contact")}
-              className={`px-4 py-2 rounded-lg font-bold cursor-pointer ${
-                activeTab === "contact"
-                  ? "bg-blue-400 hover:bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-blue-200"
-              }`}
-            >
-              Contact
-            </button> */}
           </div>
         </div>
 
         {/* Content */}
         <div className=" mx-auto px-6 py-4">
-          {/* {activeTab === "services" && <ServiceManagement />} */}
-          {/* {activeTab === "appointments" && <AppointmentManagement />} */}
+          {activeTab === "appointments" && <StaffAppointment />}
 
-          {activeTab === "staffshift" && <StaffShift />}
-          {/* {activeTab === "contact" && <ContactManaement />} */}
+          {activeTab === "shift" && <StaffShift />}
         </div>
       </div>
     </div>

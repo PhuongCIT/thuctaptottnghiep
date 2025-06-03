@@ -1,14 +1,16 @@
-import { FiTrash2, FiEdit, FiCheck } from "react-icons/fi";
+import { FiTrash2, FiEdit, FiCheck, FiBell } from "react-icons/fi"; // Thêm FiBell
 import { useAuth } from "../../context/AuthContext";
 import { useEffect, useState } from "react";
-import { AppContext } from "../../context/AppContext";
+import { toast } from "react-toastify"; // Thêm toast
+import axios from "axios";
 
 const AppointmentManagement = () => {
   const { appointments, completeAppointment, confirmAppointment } = useAuth();
-  // const { formatPrice } = useContext(AppContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedAppointments, setSelectedAppointments] = useState([]); // State cho việc chọn lịch hẹn
+  const [isSendingNotification, setIsSendingNotification] = useState(false); // Loading state
 
   // Filter appointments
   const filteredAppointments = appointments.filter((appointment) => {
@@ -40,13 +42,130 @@ const AppointmentManagement = () => {
     setCurrentPage(1);
   }, [statusFilter]);
 
+  // Thêm hàm xử lý chọn lịch hẹn
+  const handleSelectAppointment = (appointmentId) => {
+    setSelectedAppointments((prev) => {
+      if (prev.includes(appointmentId)) {
+        return prev.filter((id) => id !== appointmentId);
+      }
+      return [...prev, appointmentId];
+    });
+  };
+
+  // Thêm hàm gửi thông báo
+  const handleSendNotifications = async () => {
+    if (selectedAppointments.length === 0) {
+      toast.warning("Vui lòng chọn ít nhất một lịch hẹn");
+      return;
+    }
+
+    setIsSendingNotification(true);
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/notifications/send-reminders",
+        {
+          appointmentIds: selectedAppointments,
+        }
+      );
+
+      console.log("response ", response);
+
+      if (response.data.success) {
+        toast.success(
+          `Đã gửi thông báo thành công cho ${response.data.message}`
+        );
+        setSelectedAppointments([]); // Reset selection
+      } else {
+        toast.error(response.message || "Có lỗi xảy ra khi gửi thông báo");
+      }
+    } catch (error) {
+      toast.error("Không thể kết nối đến server");
+      console.error("Error sending notifications:", error);
+    } finally {
+      setIsSendingNotification(false);
+    }
+  };
+
   return (
     <div className="bg-white shadow-md rounded-lg p-6">
+      {/* Thêm phần controls */}
+      <div className="mb-4 flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleSendNotifications}
+            disabled={
+              selectedAppointments.length === 0 || isSendingNotification
+            }
+            className={`flex items-center gap-2 px-4 py-2 rounded-md ${
+              selectedAppointments.length === 0 || isSendingNotification
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+          >
+            <FiBell className="w-5 h-5" />
+            {isSendingNotification ? "Đang gửi..." : "Gửi thông báo"}
+            {selectedAppointments.length > 0 &&
+              ` (${selectedAppointments.length})`}
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-600">Lọc theo trạng thái:</span>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="p-2 border rounded-md"
+          >
+            <option value="all">Tất cả</option>
+            <option value="pending">Chờ xác nhận</option>
+            <option value="confirmed">Đã xác nhận</option>
+            <option value="completed">Hoàn thành</option>
+            <option value="cancelled">Đã hủy</option>
+          </select>
+        </div>
+      </div>
       {/* Appointments Table */}
-      <div className=" rounded-lg overflow-hidden mb-4">
+      <div className="rounded-lg overflow-hidden mb-4">
         <table className="min-w-full table-auto">
           <thead className="bg-gray-200">
             <tr>
+              <th className="px-4 py-3 text-left">
+                <input
+                  type="checkbox"
+                  checked={
+                    currentAppoitments.length > 0 &&
+                    currentAppoitments.every((apt) =>
+                      selectedAppointments.includes(apt._id)
+                    )
+                  }
+                  onChange={() => {
+                    const validAppointments = currentAppoitments.filter((apt) =>
+                      ["pending", "confirmed"].includes(apt.status)
+                    );
+
+                    if (
+                      validAppointments.every((apt) =>
+                        selectedAppointments.includes(apt._id)
+                      )
+                    ) {
+                      setSelectedAppointments((prev) =>
+                        prev.filter(
+                          (id) =>
+                            !validAppointments.find((apt) => apt._id === id)
+                        )
+                      );
+                    } else {
+                      setSelectedAppointments((prev) => [
+                        ...prev,
+                        ...validAppointments
+                          .map((apt) => apt._id)
+                          .filter((id) => !prev.includes(id)),
+                      ]);
+                    }
+                  }}
+                  className="rounded"
+                />
+              </th>
               <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">
                 Customer & Phone
               </th>
@@ -86,8 +205,23 @@ const AppointmentManagement = () => {
               currentAppoitments?.map((appointment) => (
                 <tr
                   key={appointment._id}
-                  className="border-b hover:bg-gray-50 transition"
+                  className={`border-b transition ${
+                    selectedAppointments.includes(appointment._id)
+                      ? "bg-blue-50"
+                      : "hover:bg-gray-50"
+                  }`}
                 >
+                  <td className="px-4 py-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedAppointments.includes(appointment._id)}
+                      onChange={() => handleSelectAppointment(appointment._id)}
+                      disabled={
+                        !["pending", "confirmed"].includes(appointment.status)
+                      }
+                      className="rounded"
+                    />
+                  </td>
                   <td className="px-3 py-2  ">
                     <p className="font-semibold">
                       {appointment.customerId.name}

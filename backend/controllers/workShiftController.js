@@ -44,7 +44,7 @@ export const registerWorkShift = async (req, res) => {
   }
 };
 
-// Admin duyệt/từ chối đăng ký ca
+// Admin duyệt đăng ký ca
 export const approveWorkShift = async (req, res) => {
   try {
     const { id } = req.params;
@@ -53,6 +53,29 @@ export const approveWorkShift = async (req, res) => {
       id,
       {
         status: "approved",
+      },
+      { new: true }
+    ).populate("staffId shiftId");
+
+    res.status(200).json({
+      success: true,
+      message: "Đã cập nhật trạng thái đăng ký ca làm việc",
+      data: updatedWorkShift,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Admin từ chối đăng ký ca
+export const rejectWorkShift = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const updatedWorkShift = await WorkShift.findByIdAndUpdate(
+      id,
+      {
+        status: "rejected",
       },
       { new: true }
     ).populate("staffId shiftId");

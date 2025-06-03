@@ -63,9 +63,8 @@ export const createContact = async (req, res) => {
   }
 };
 
-// @desc    Lấy danh sách liên hệ (phân trang, lọc)
-// @route   GET /api/contacts
-// @access  Private/Admin
+//   Lấy danh sách liên hệ (phân trang, lọc)
+
 export const getContacts = async (req, res) => {
   try {
     const {
@@ -114,9 +113,8 @@ export const getContacts = async (req, res) => {
   }
 };
 
-// @desc    Đánh dấu đã đọc liên hệ
-// @route   PATCH /api/contacts/:id/read
-// @access  Private/Admin
+//    Đánh dấu đã đọc liên hệ
+
 export const markAsRead = async (req, res) => {
   try {
     const contact = await Contact.findByIdAndUpdate(
@@ -147,9 +145,8 @@ export const markAsRead = async (req, res) => {
   }
 };
 
-// @desc    Xóa liên hệ
-// @route   DELETE /api/contacts/:id
-// @access  Private/Admin
+//    Xóa liên hệ
+
 export const deleteContact = async (req, res) => {
   try {
     const contact = await Contact.findByIdAndDelete(req.params.id);
@@ -174,74 +171,6 @@ export const deleteContact = async (req, res) => {
     });
   }
 };
-
-// @desc    Lấy thông tin chi tiết liên hệ
-// @route   GET /api/contacts/:id
-// @access  Private/Admin
-export const getContactDetail = async (req, res) => {
-  try {
-    const contact = await Contact.findById(req.params.id);
-
-    if (!contact) {
-      return res.status(404).json({
-        success: false,
-        message: "Không tìm thấy liên hệ",
-      });
-    }
-
-    // Nếu chưa đọc thì đánh dấu là đã đọc
-    if (!contact.isRead) {
-      contact.isRead = true;
-      await contact.save();
-    }
-
-    res.status(200).json({
-      success: true,
-      data: contact,
-    });
-  } catch (error) {
-    console.error("Lỗi khi lấy chi tiết liên hệ:", error);
-    res.status(500).json({
-      success: false,
-      message: "Đã xảy ra lỗi khi lấy thông tin liên hệ",
-      error: error.message,
-    });
-  }
-};
-
-//gửi phản hồi
-// exports.sendReply = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const { replyMessage } = req.body;
-
-//     const contact = await Contact.findById(id);
-//     if (!contact) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Không tìm thấy liên hệ",
-//       });
-//     }
-
-//     // Gửi email phản hồi
-//     await sendReplyEmail(contact.email, contact.name, replyMessage);
-
-//     // Đánh dấu đã phản hồi
-//     contact.isReplied = true;
-//     await contact.save();
-
-//     res.status(200).json({
-//       success: true,
-//       message: "Đã gửi phản hồi thành công",
-//     });
-//   } catch (error) {
-//     console.error("Lỗi gửi phản hồi:", error);
-//     res.status(500).json({
-//       success: false,
-//       message: "Lỗi khi gửi phản hồi",
-//     });
-//   }
-// };
 
 //thống kê
 export const getContactStats = async (req, res) => {

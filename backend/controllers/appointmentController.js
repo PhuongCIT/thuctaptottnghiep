@@ -173,25 +173,6 @@ export const createAppointment = async (req, res) => {
   }
 };
 
-// Lấy danh sách lịch hẹn theo nhân viên/ngày
-export const getAppointments = async (req, res) => {
-  try {
-    const { staffId, date } = req.query;
-    const query = {};
-
-    if (staffId) query.staffId = staffId;
-    if (date) query.date = new Date(date);
-
-    const appointments = await Appointment.find(query)
-      .populate("customer", "name phone")
-      .populate("services", "name price duration");
-
-    res.status(200).json({ success: true, data: appointments });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Lỗi hệ thống" });
-  }
-};
-
 // Lấy tất cả appointments (lọc theo role)
 export const getAllAppointments = async (req, res) => {
   let filter = {};
@@ -223,38 +204,38 @@ export const getAllAppointments = async (req, res) => {
 };
 
 // Lấy appointment cụ thể
-export const getAppointment = async (req, res) => {
-  const appointment = await Appointment.findById(req.params.id)
-    .populate("customer", "name email phone")
-    .populate("staff", "name")
-    .populate("services", "name price duration");
+// export const getAppointment = async (req, res) => {
+//   const appointment = await Appointment.findById(req.params.id)
+//     .populate("customer", "name email phone")
+//     .populate("staff", "name")
+//     .populate("services", "name price duration");
 
-  if (!appointment) {
-    return res
-      .status(404)
-      .json({ success: false, message: "Appointment not found" });
-  }
+//   if (!appointment) {
+//     return res
+//       .status(404)
+//       .json({ success: false, message: "Appointment not found" });
+//   }
 
-  // Kiểm tra quyền truy cập
-  if (
-    req.user.role === "customer" &&
-    appointment.customerId._id.toString() !== req.user.id
-  ) {
-    return res.status(403).json({ success: false, message: "Forbidden" });
-  }
+//   // Kiểm tra quyền truy cập
+//   if (
+//     req.user.role === "customer" &&
+//     appointment.customerId._id.toString() !== req.user.id
+//   ) {
+//     return res.status(403).json({ success: false, message: "Forbidden" });
+//   }
 
-  if (
-    req.user.role === "staff" &&
-    appointment.staffId._id.toString() !== req.user.id
-  ) {
-    return res.status(403).json({ success: false, message: "Forbidden" });
-  }
+//   if (
+//     req.user.role === "staff" &&
+//     appointment.staffId._id.toString() !== req.user.id
+//   ) {
+//     return res.status(403).json({ success: false, message: "Forbidden" });
+//   }
 
-  res.status(200).json({
-    success: true,
-    data: { appointment },
-  });
-};
+//   res.status(200).json({
+//     success: true,
+//     data: { appointment },
+//   });
+// };
 
 //cap nhat status tu pending sang confirmed
 export const confirmAppointment = async (req, res) => {
@@ -265,19 +246,7 @@ export const confirmAppointment = async (req, res) => {
       message: "Appointment not found",
     });
   }
-  // Kiểm tra quyền truy cập
-  // if (
-  //   req.user.role === "customer" &&
-  //   appointment.customerId._id.toString() !== req.user.id
-  // ) {
-  //   return res.status(403).json({ success: false, message: "Forbidden" });
-  // }
-  // if (
-  //   req.user.role === "staff" &&
-  //   appointment.staffId._id.toString() !== req.user.id
-  // ) {
-  //   return res.status(403).json({ success: false, message: "Forbidden" });
-  // }
+
   // Cập nhật trạng thái
   appointment.status = "confirmed";
   await appointment.save();

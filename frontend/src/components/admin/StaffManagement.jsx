@@ -24,10 +24,6 @@ const StaffManagement = () => {
   const handleNext = () =>
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
 
-  // const handleEdit = (id) => {
-  // setSelectedServiceId(id);
-  // setOpenEdit(true);
-  // };
   const handleDelete = async (_id) => {
     if (window.confirm("Bạn có chắc muốn nhân viên này?")) {
       try {
@@ -117,12 +113,6 @@ const StaffManagement = () => {
                   {staff?.dob || "Null"}
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
-                  <button
-                    className="bg-amber-200 cursor-pointer rounded px-1"
-                    // onClick={() => handleEdit(staff._id)}
-                  >
-                    Sửa
-                  </button>
                   <button
                     className="bg-red-300 cursor-pointer ml-3 rounded px-1"
                     onClick={() => handleDelete(staff._id)}

@@ -44,6 +44,7 @@ import {
   getWorkShifts,
   registerWorkShift,
 } from "../controllers/workShiftController.js";
+import { sendRemindersManually } from "../controllers/notificationController.js";
 const router = express.Router();
 //auth
 router.post("/auth/login", login);
@@ -108,5 +109,8 @@ router.delete("/shifts/delete/:id", deleteShift);
 
 router.post("/contact/create", createContact);
 router.get("/contacts", getContacts);
+
+// Route để gửi thông báo thủ công
+router.post("/notifications/send-reminders", sendRemindersManually);
 
 export default router;

@@ -10,7 +10,7 @@ const Staff = () => {
   const sliderSettings = {
     dots: true,
     infinite: true,
-    speed: 500,
+    speed: 2000,
     slidesToShow: 4,
     slidesToScroll: 1,
     autoplay: true,
@@ -44,7 +44,7 @@ const Staff = () => {
     return (
       <section className="relative bg-gray-100 px-4 sm:px-8 lg:px-16 xl:px-40 2xl:px-64 py-16 lg:py-32">
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-xl animate-pulse">Đang tải dịch vụ...</div>
+          <div className="text-xl animate-pulse">Đang tải...</div>
         </div>
       </section>
     );
@@ -67,9 +67,7 @@ const Staff = () => {
   }
   return (
     <section className="flex flex-col items-center gap-4 my-16 text-gray-900 md:mx-10">
-      <h2 className="mt-16 text-2xl font-bold text-center">
-        Nhân viên Của chúng tôi
-      </h2>
+      <h2 className="text-3xl font-medium">Nhân viên Của chúng tôi</h2>
 
       <div className="w-full max-w-6xl px-4 py-8">
         <Slider {...sliderSettings}>

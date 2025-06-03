@@ -92,7 +92,7 @@ const BookingPage = () => {
           setNotes("");
           setSelectedStaffId("");
           toast.success("Đặt lịch thành công!");
-          await getAllAppointments();
+          getAllAppointments();
         }
       } catch (error) {
         toast.error(error.response.data.message);

@@ -6,7 +6,7 @@ const Services = () => {
   const { errorService, loadingService, loadServices, services } =
     useContext(AppContext);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
 
   // Tính toán dữ liệu phân trang
   const totalPages = Math.ceil(services.length / itemsPerPage);

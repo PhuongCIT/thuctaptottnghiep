@@ -27,12 +27,6 @@ export const getAllUsers = async (req, res) => {
 
 //create for admin
 export const createUser = async (req, res) => {
-  // const newStaff = await User.create(req.body);
-
-  // res.status(201).json({
-  //   success: true,
-  //   data: { newStaff },
-  // });
   try {
     const { name, email, password, phone, address, role } = req.body;
     const existingUser = await User.findOne({ email });
@@ -94,32 +88,6 @@ export const getUserDetail = async (req, res) => {
     success: true,
     message: "Lấy thông tin người dùng thành công",
     data: { user },
-  });
-};
-
-// [PATCH] /api/v1/users/updateMe - Cập nhật thông tin cá nhân (không đổi password)
-export const updateMe = async (req, res) => {
-  // 1) Lỗi nếu user POST password
-  if (req.body.password || req.body.passwordConfirm) {
-    return res.status(400).json({
-      success: false,
-      message:
-        "Không thể cập nhật password qua đây. Vui lòng sử dụng /updateMyPassword.",
-    });
-  }
-
-  // 2) Lọc các trường không được phép cập nhật
-  const filteredBody = filterObj(req.body, "email");
-
-  // 3) Cập nhật user document
-  const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
-    new: true,
-  });
-
-  res.status(200).json({
-    success: true,
-    message: "Cập nhật thông tin cá nhân thành công",
-    user: updatedUser,
   });
 };
 
@@ -199,38 +167,6 @@ export const updateProfile = async (req, res) => {
       message: error.message || "Lỗi hệ thống",
     });
   }
-};
-
-// [DELETE] /api/v1/users/deleteMe - Xóa tài khoản (soft delete)
-export const deleteMe = async (req, res) => {
-  await User.findByIdAndUpdate(req.user.id, { isActive: false });
-
-  res.status(204).json({
-    success: true,
-    message: "Xóa tài khoản thành công",
-    data: null,
-  });
-};
-
-// [PATCH] /api/v1/users/:id - Cập nhật user (Admin only)
-export const updateUser = async (req, res) => {
-  // Cho phép admin thay đổi role
-  const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
-
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: "Không tìm thấy người dùng với ID này",
-    });
-  }
-
-  res.status(200).json({
-    success: true,
-    data: { user },
-  });
 };
 
 // [DELETE] /api/v1/users/:id - Xóa user (Admin only)

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import contactApi from "../../services/contactService";
-
+import { FiTrash2 } from "react-icons/fi";
 const ContactManagement = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -58,31 +58,31 @@ const ContactManagement = () => {
   }
   return (
     <div className="p-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
-          <div className="bg-white p-4 rounded-lg shadow mb-6">
-            <h2 className="text-lg font-semibold mb-4">Liên hệ</h2>
-            {contacts.map((item, index) => (
-              <div
-                key={index}
-                className="flex gap-3 items-center  justify-betweens"
-              >
-                <p className="font-bold">{item.name}</p>
-                <p>{item.subject}</p>
+      {" "}
+      <div className="md:col-span-2">
+        <div className="bg-white p-4 rounded-lg shadow mb-6">
+          <h2 className="text-lg font-semibold mb-4">Liên hệ</h2>
+          {contacts.map((item, index) => (
+            <div
+              key={index}
+              className="flex gap-4 items-center  justify-betweens"
+            >
+              <p className="font-bold">{item.name}</p>
 
-                <p>{item.createdAt}</p>
-                {item.isRead === false && (
-                  <div className="bg-green-400 w-3 h-3 rounded-full items-end"></div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+              <p>{item.subject}</p>
+              <p className="overflow-hidden">{item.message}</p>
 
-        <div>
-          <div className="bg-white p-4 rounded-lg shadow sticky top-4">
-            <h2 className="text-lg font-semibold mb-4">Đăng ký ca</h2>
-          </div>
+              <p>{item.createdAt}</p>
+              {item.isRead === false && (
+                <div className="bg-green-400 w-3 h-3 rounded-full items-end"></div>
+              )}
+              <p className="px-4 py-3 whitespace-nowrap space-x-2">
+                <button className="text-red-500 hover:text-red-700 transition cursor-pointer">
+                  <FiTrash2 className="inline w-5 h-5" />
+                </button>
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
